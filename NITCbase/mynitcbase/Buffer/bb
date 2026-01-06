@@ -1,11 +1,12 @@
 #include "BlockBuffer.h"
 #include <cstdlib>
 #include <cstring>
+
 // the declarations for these functions can be found in "BlockBuffer.h"
 
 BlockBuffer::BlockBuffer(int blockNum) {
   // initialise this.blockNum with the argument
-    this->blockNum = blockNum;
+  this->blockNum = blockNum;
 }
 
 // calls the parent class constructor
