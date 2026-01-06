@@ -14,40 +14,23 @@ int s_o_b(int blockNumber){
 }
 
 int main(int argc, char *argv[]) {
+  /* Initialize the Run Copy of Disk */
   Disk disk_run;
+  // StaticBuffer buffer;
+  unsigned char buffer1[BLOCK_SIZE];
+  Disk::readBlock(buffer1,0);
+  char message[BLOCK_SIZE];
+  std::cout<<(char*)buffer1<<std::endl;
+    for (int i = 0; i < 2048; i++) {
+	    std::cout << (int)buffer1[i] << " ";
+        }
+  Disk::writeBlock(buffer1,7000);
+  unsigned char buffer2[BLOCK_SIZE];
+  char message2[BLOCK_SIZE];
+  Disk::readBlock(buffer2,7000);
+  memcpy(message2,buffer2+20,6);
+  std::cout<<message2<<std::endl<<(char*)buffer2;
+  // OpenRelTable cache;
 
-  // create objects for the relation catalog and attribute catalog
-  RecBuffer relCatBuffer(RELCAT_BLOCK);
-  RecBuffer attrCatBuffer(ATTRCAT_BLOCK);
-
-  HeadInfo relCatHeader;
-  HeadInfo attrCatHeader;
-
-  // load the headers of both the blocks into relCatHeader and attrCatHeader.
-  // (we will implement these functions later)
-  relCatBuffer.getHeader(&relCatHeader);
-  attrCatBuffer.getHeader(&attrCatHeader);
-int numOfRelations = relCatHeader.numEntries;
-int numOfAttributes = attrCatHeader.numEntries;
-  for (int i=0;i<numOfRelations;i++) {
-
-    Attribute relCatRecord[RELCAT_NO_ATTRS]; // will store the record from the relation catalog
-
-    relCatBuffer.getRecord(relCatRecord, i);
-
-    printf("Relation: %s\n", relCatRecord[RELCAT_REL_NAME_INDEX].sVal);
-
-    for (int j=0;j<numOfAttributes;j++/* j = 0 to number of entries in the attribute catalog */) {
-	    Attribute attrCatRecord[ATTRCAT_NO_ATTRS];
-      // declare attrCatRecord and load the attribute catalog entry into it
-		attrCatBuffer.getRecord(attrCatRecord,j);
-      if (strcmp(attrCatRecord[0].sVal,relCatRecord[0].sVal)==0/* attribute catalog entry corresponds to the current relation */) {
-        const char *attrType = attrCatRecord[ATTRCAT_ATTR_TYPE_INDEX].nVal == NUMBER ? "NUM" : "STR";
-        printf("  %s: %s\n", /* get the attribute name */attrCatRecord[ATTRCAT_ATTR_NAME_INDEX].sVal, attrType);
-      }
-    }
-    printf("\n");
-  }
-
-  return 0;
+  return FrontendInterface::handleFrontend(argc, argv);
 }
