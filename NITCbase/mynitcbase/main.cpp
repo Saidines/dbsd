@@ -3,16 +3,6 @@
 #include "Disk_Class/Disk.h"
 #include "FrontendInterface/FrontendInterface.h"
 #include "bits/stdc++.h"
-
-int s_o_b(int blockNumber){
-	if(blockNumber>8192) return -1;
-	int mapBlockNumber=blockNumber/2048;
-	blockNumber=blockNumber%20448;
-	unsigned char buffer[BLOCK_SIZE];
-	Disk::readBlock(buffer,mapBlockNumber);
-	return buffer[blockNumber];
-}
-
 int main(int argc, char *argv[]) {
   Disk disk_run;
 
@@ -27,6 +17,18 @@ int main(int argc, char *argv[]) {
   // (we will implement these functions later)
   relCatBuffer.getHeader(&relCatHeader);
   attrCatBuffer.getHeader(&attrCatHeader);
+ std::vector<int> attrBlocks;
+  attrBlocks.push_back(ATTRCAT_BLOCK);
+
+
+ while(attrCatHeader.rblock!=-1){
+    attrBlocks.push_back((attrCatHeader.rblock));
+    RecBuffer temp(attrCatHeader.rblock);
+    temp.getHeader(&attrCatHeader);
+  }
+
+
+
 int numOfRelations = relCatHeader.numEntries;
 int numOfAttributes = attrCatHeader.numEntries;
   for (int i=0;i<numOfRelations;i++) {
@@ -37,7 +39,12 @@ int numOfAttributes = attrCatHeader.numEntries;
 
     printf("Relation: %s\n", relCatRecord[RELCAT_REL_NAME_INDEX].sVal);
 
-    for (int j=0;j<numOfAttributes;j++/* j = 0 to number of entries in the attribute catalog */) {
+    for(int b=0;b<attrBlocks.size();b++){  
+    RecBuffer attrCatBuffer(attrBlocks[b]);
+    HeadInfo attrCatHeader;
+    attrCatBuffer.getHeader(&attrCatHeader);  
+
+    for (int j=0;j<attrCatHeader.numEntries;j++/* j = 0 to number of entries in the attribute catalog */) {
 	    Attribute attrCatRecord[ATTRCAT_NO_ATTRS];
       // declare attrCatRecord and load the attribute catalog entry into it
 		attrCatBuffer.getRecord(attrCatRecord,j);
@@ -48,6 +55,7 @@ int numOfAttributes = attrCatHeader.numEntries;
     }
     printf("\n");
   }
+}
 
   return 0;
 }
