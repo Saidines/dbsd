@@ -15,7 +15,7 @@ int s_o_b(int blockNumber){
 
 int main(int argc, char *argv[]) {
   Disk disk_run;
-
+  StaticBuffer static_buffer;
   // create objects for the relation catalog and attribute catalog
   RecBuffer relCatBuffer(RELCAT_BLOCK);
   RecBuffer attrCatBuffer(ATTRCAT_BLOCK);
@@ -29,6 +29,7 @@ int main(int argc, char *argv[]) {
   attrCatBuffer.getHeader(&attrCatHeader);
 int numOfRelations = relCatHeader.numEntries;
 int numOfAttributes = attrCatHeader.numEntries;
+
   for (int i=0;i<numOfRelations;i++) {
 
     Attribute relCatRecord[RELCAT_NO_ATTRS]; // will store the record from the relation catalog
