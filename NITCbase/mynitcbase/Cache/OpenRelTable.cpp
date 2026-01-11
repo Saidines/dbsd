@@ -89,7 +89,8 @@ prev->next=NULL;
   //struct AttrCacheEntry *head=NULL;
   //struct AttrCacheEntry *prev=NULL;
 
-
+head=NULL;
+prev=NULL;
   for(int i=RELCAT_NO_ATTRS;i<RELCAT_NO_ATTRS+ATTRCAT_NO_ATTRS;i++){
   	attrCatBlock.getRecord(attrCatRecord,i);
 	struct AttrCacheEntry attrCacheEntry;
@@ -109,6 +110,7 @@ prev->next=NULL;
   }
 
 	AttrCacheTable::attrCache[ATTRCAT_RELID]=head;
+    prev->next=NULL;
 
   // set up the attributes of the attribute cache similarly.
   // read slots 6-11 from attrCatBlock and initialise recId appropriately
@@ -119,8 +121,10 @@ prev->next=NULL;
 OpenRelTable::~OpenRelTable() {
 
 	for(int i=0;i<MAX_OPEN;i++){
-		if(RelCacheTable::relCache[i]!=NULL)
+		if(RelCacheTable::relCache[i]!=NULL){
 		free(RelCacheTable::relCache[i]);
+		RelCacheTable::relCache[i]=NULL;
+		}
 }
 
 	for(int i=0;i<MAX_OPEN;i++){
@@ -131,6 +135,7 @@ OpenRelTable::~OpenRelTable() {
 				free(head);
 				head=temp;
 			}
+			AttrCacheTable::attrCache[i]=NULL;
 
 
 		}
