@@ -16,8 +16,9 @@ int s_o_b(int blockNumber){
 int main(int argc, char *argv[]) {
   Disk disk_run;
   StaticBuffer static_buffer;
+  OpenRelTable cache;
   // create objects for the relation catalog and attribute catalog
-  RecBuffer relCatBuffer(RELCAT_BLOCK);
+/*  RecBuffer relCatBuffer(RELCAT_BLOCK);
   RecBuffer attrCatBuffer(ATTRCAT_BLOCK);
 
   HeadInfo relCatHeader;
@@ -37,17 +38,38 @@ int numOfAttributes = attrCatHeader.numEntries;
     relCatBuffer.getRecord(relCatRecord, i);
 
     printf("Relation: %s\n", relCatRecord[RELCAT_REL_NAME_INDEX].sVal);
-
-    for (int j=0;j<numOfAttributes;j++/* j = 0 to number of entries in the attribute catalog */) {
-	    Attribute attrCatRecord[ATTRCAT_NO_ATTRS];
+*/
+  //  for (int j=0;j<numOfAttributes;j++/* j = 0 to number of entries in the attribute catalog */) {
+//	    Attribute attrCatRecord[ATTRCAT_NO_ATTRS];
       // declare attrCatRecord and load the attribute catalog entry into it
-		attrCatBuffer.getRecord(attrCatRecord,j);
-      if (strcmp(attrCatRecord[0].sVal,relCatRecord[0].sVal)==0/* attribute catalog entry corresponds to the current relation */) {
-        const char *attrType = attrCatRecord[ATTRCAT_ATTR_TYPE_INDEX].nVal == NUMBER ? "NUM" : "STR";
-        printf("  %s: %s\n", /* get the attribute name */attrCatRecord[ATTRCAT_ATTR_NAME_INDEX].sVal, attrType);
-      }
+//		attrCatBuffer.getRecord(attrCatRecord,j);
+  //    if (strcmp(attrCatRecord[0].sVal,relCatRecord[0].sVal)==0/* attribute catalog entry corresponds to the current relation */) {
+    //    const char *attrType = attrCatRecord[ATTRCAT_ATTR_TYPE_INDEX].nVal == NUMBER ? "NUM" : "STR";
+      //  printf("  %s: %s\n", /* get the attribute name */attrCatRecord[ATTRCAT_ATTR_NAME_INDEX].sVal, attrType);
+      /*}
     }
     printf("\n");
+  }*/
+
+  for(int i=0;i<=1;i++){
+  	RelCatEntry relCatBuf;
+	RelCacheTable::getRelCatEntry(i,&relCatBuf);
+	char* relname = relCatBuf.relName;
+	printf("Relation: %s\n",relname);
+	
+	for(int j=0;j < relCatBuf.numAttrs;j++){
+		AttrCatEntry AttrCatBuf;
+		AttrCacheTable::getAttrCatEntry(i,j,&AttrCatBuf);
+		char attributeName[ATTR_SIZE];
+		strcpy(attributeName,AttrCatBuf.attrName);
+	      const char* attributeType=(AttrCatBuf.attrType == 0)? "NUM" : "STRING"; 
+		printf(" %s: %s\n",attributeName,attributeType);
+		
+		
+	}
+
+
+
   }
 
   return 0;
