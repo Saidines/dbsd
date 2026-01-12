@@ -10,7 +10,7 @@ NOTE: this function expects the caller to allocate memory for `*attrCatBuf`
 */
 int AttrCacheTable::getAttrCatEntry(int relId, int attrOffset, AttrCatEntry* attrCatBuf) {
   // check if 0 <= relId < MAX_OPEN and return E_OUTOFBOUND otherwise
-	if(relId<0||relId>MAX_OPEN) {
+	if(relId<0||relId>=MAX_OPEN) {
 		return E_OUTOFBOUND;
 	}
   // check if attrCache[relId] == nullptr and return E_RELNOTOPEN if true
@@ -40,6 +40,32 @@ void AttrCacheTable::recordToAttrCatEntry(union Attribute record[ATTRCAT_NO_ATTR
 	attrCatEntry->rootBlock = record[ATTRCAT_ROOT_BLOCK_INDEX].nVal;
 	attrCatEntry->offset = record[ATTRCAT_OFFSET_INDEX].nVal;
 	strcpy(attrCatEntry->attrName,record[ATTRCAT_ATTR_NAME_INDEX].sVal);
-	attrCatEntry->attrType=record[ATTRCAT_ATTR_TYPE_INDEX].nVal;
+	attrCatEntry->attrType=record[ATTRCAT_ATTR_TYPE_INDEX].nVal;}
   // copy the rest of the fields in the record to the attrCacheEntry struct
+  //
+
+/* returns the attribute with name `attrName` for the relation corresponding to relId
+NOTE: this function expects the caller to allocate memory for `*attrCatBuf`
+*/
+int AttrCacheTable::getAttrCatEntry(int relId, char attrName[ATTR_SIZE], AttrCatEntry* attrCatBuf) {
+	if(relId<0||relId>=MAX_OPEN) return E_OUTOFBOUND;
+  // check that relId is valid and corresponds to an open relation
+	if(attrCache[relId]==NULL) return E_RELNOTOPEN;
+  // iterate over the entries in the attribute cache and set attrCatBuf to the entry that
+  //    matches attrName
+  struct AttrCacheEntry* attrCacheEntry=attrCache[relId];
+
+  while(attrCacheEntry!=NULL){
+  
+	  if(strcmp(attrCacheEntry->attrCatEntry.attrName,attrName)==0){
+	  	*attrCatBuf=attrCacheEntry->attrCatEntry;
+	  return SUCCESS;
+	  }
+  }
+
+  // no attribute with name attrName for the relation
+  return E_ATTRNOTEXIST;
 }
+
+
+

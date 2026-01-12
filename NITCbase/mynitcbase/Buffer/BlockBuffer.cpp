@@ -97,5 +97,47 @@ int BlockBuffer::loadBlockAndGetBufferPtr(unsigned char **bufferPtr){
 
 }	
 
+/* used to get the slotmap from a record block
+NOTE: this function expects the caller to allocate memory for `*slotMap`
+*/
+int RecBuffer::getSlotMap(unsigned char *slotMap) {
+  unsigned char *bufferPtr;
+
+  // get the starting address of the buffer containing the block using loadBlockAndGetBufferPtr().
+  int ret = loadBlockAndGetBufferPtr(&bufferPtr);
+  if (ret != SUCCESS) {
+    return ret;
+  }
+
+  struct HeadInfo head;
+  // get the header of the block using getHeader() function
+	getHeader(&head);
+  int slotCount = head.numSlots;/* number of slots in block from header */;
+
+  // get a pointer to the beginning of the slotmap in memory by offsetting HEADER_SIZE
+  unsigned char *slotMapInBuffer = bufferPtr + HEADER_SIZE;
+	unsigned char*tempSlotMap = (unsigned char*)malloc(slotCount);
+	memcpy(slotMap,slotMapInBuffer,slotCount);
+	
+  // copy the values from `slotMapInBuffer` to `slotMap` (size is `slotCount`)
+
+  return SUCCESS;
+}
 
 
+int compareAttrs(union Attribute attr1,union Attribute attr2,int type){
+	double diff;
+	if(type==0){
+		 diff=attr1.nVal-attr2.nVal;
+	}
+
+	else{
+		diff=strcmp(attr1.sVal,attr2.sVal);
+	}
+
+		if(diff<0) return -1;
+		if(diff>0) return 1;
+		return 0;
+
+
+}
