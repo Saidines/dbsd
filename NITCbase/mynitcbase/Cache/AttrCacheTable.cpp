@@ -14,7 +14,7 @@ int AttrCacheTable::getAttrCatEntry(int relId, int attrOffset, AttrCatEntry* att
 		return E_OUTOFBOUND;
 	}
   // check if attrCache[relId] == nullptr and return E_RELNOTOPEN if true
-		if(attrCache[relId]==NULL) {
+		if(attrCache[relId]==nullptr) {
 			E_RELNOTOPEN;
 		}
   // traverse the linked list of attribute cache entries
@@ -50,12 +50,12 @@ NOTE: this function expects the caller to allocate memory for `*attrCatBuf`
 int AttrCacheTable::getAttrCatEntry(int relId, char attrName[ATTR_SIZE], AttrCatEntry* attrCatBuf) {
 	if(relId<0||relId>=MAX_OPEN) return E_OUTOFBOUND;
   // check that relId is valid and corresponds to an open relation
-	if(attrCache[relId]==NULL) return E_RELNOTOPEN;
+	if(attrCache[relId]==nullptr) return E_RELNOTOPEN;
   // iterate over the entries in the attribute cache and set attrCatBuf to the entry that
   //    matches attrName
   struct AttrCacheEntry* attrCacheEntry=attrCache[relId];
 
-  while(attrCacheEntry!=NULL){
+  while(attrCacheEntry!=nullptr){
   
 	  if(strcmp(attrCacheEntry->attrCatEntry.attrName,attrName)==0){
 	  	*attrCatBuf=attrCacheEntry->attrCatEntry;

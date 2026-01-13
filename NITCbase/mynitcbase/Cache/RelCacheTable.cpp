@@ -56,7 +56,7 @@ int RelCacheTable::getSearchIndex(int relId, RecId* searchIndex) {
   // check if 0 <= relId < MAX_OPEN and return E_OUTOFBOUND otherwise
 	if(relId<0||relId>=MAX_OPEN) return E_OUTOFBOUND;
   // check if relCache[relId] == nullptr and return E_RELNOTOPEN if true
-		if(relCache[relId]==NULL) return E_RELNOTOPEN;
+		if(relCache[relId]==nullptr) return E_RELNOTOPEN;
   // copy the searchIndex field of the Relation Cache entry corresponding
   //   to input relId to the searchIndex variable.
   *searchIndex = relCache[relId]->searchIndex;
@@ -69,7 +69,7 @@ int RelCacheTable::setSearchIndex(int relId, RecId* searchIndex) {
   // check if 0 <= relId < MAX_OPEN and return E_OUTOFBOUND otherwise
 	if(relId<0||relId>=MAX_OPEN) return E_OUTOFBOUND;
   // check if relCache[relId] == nullptr and return E_RELNOTOPEN if true
-	if(relCache[relId]==NULL) return E_RELNOTOPEN;
+	if(relCache[relId]==nullptr) return E_RELNOTOPEN;
   // update the searchIndex value in the relCache for the relId to the searchIndex argument
 	relCache[relId]->searchIndex=*searchIndex;
   return SUCCESS;
