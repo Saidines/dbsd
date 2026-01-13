@@ -1,122 +1,130 @@
 #include "Algebra.h"
-#include <cstdlib>
+
 #include <cstring>
-#include <stdio.h>
+#include <cstdio>   // ✅ printf, sscanf
+#include <cstdlib>  // ✅ atof
 
+/* ------------------------------------------------------------
+ * Forward declaration (REQUIRED in C++)
+ * ------------------------------------------------------------ */
+bool isNumber(char *str);
 
+/*
+ * ============================================================
+ * Algebra::select()
+ * ============================================================
+ *
+ * PURPOSE (VIVA):
+ * ----------------
+ * Selects and prints all records from a relation that satisfy
+ * a given condition.
+ *
+ * NOTE:
+ * -----
+ * • In Stage-4, results are PRINTED (temporary)
+ * • In later stages, results will be inserted into a relation
+ */
+int Algebra::select(char srcRel[ATTR_SIZE],
+                    char targetRel[ATTR_SIZE],
+                    char attr[ATTR_SIZE],
+                    int op,
+                    char strVal[ATTR_SIZE]) {
 
-/* used to select all the records that satisfy a condition.
-the arguments of the function are
-- srcRel - the source relation we want to select from
-- targetRel - the relation we want to select into. (ignore for now)
-- attr - the attribute that the condition is checking
-- op - the operator of the condition
-- strVal - the value that we want to compare against (represented as a string)
-*/
-bool isNumber(char*str);
-int Algebra::select(char srcRel[ATTR_SIZE], char targetRel[ATTR_SIZE], char attr[ATTR_SIZE], int op, char strVal[ATTR_SIZE]) {
-  	
-	int srcRelId = OpenRelTable::getRelId(srcRel);      // we'll implement this later
-	printf("%d",srcRelId);
-  if (srcRelId == E_RELNOTOPEN) {
-    return E_RELNOTOPEN;
-  }
-
-  AttrCatEntry attrCatEntry;
-  // get the attribute catalog entry for attr, using AttrCacheTable::getAttrcatEntry()
-  //    return E_ATTRNOTEXIST if it returns the error
-		AttrCacheTable::getAttrCatEntry(srcRelId,attr,&attrCatEntry);
-
-  /*** Convert strVal (string) to an attribute of data type NUMBER or STRING ***/
-  int type = attrCatEntry.attrType;
-  Attribute attrVal;
-  if (type == NUMBER) {
-    if (isNumber(strVal)) {       // the isNumber() function is implemented below
-      attrVal.nVal = atof(strVal);
-    } else {
-      return E_ATTRTYPEMISMATCH;
+    /* --------------------------------------------------------
+     * STEP 1: Get relId
+     * -------------------------------------------------------- */
+    int srcRelId = OpenRelTable::getRelId(srcRel);
+    if (srcRelId == E_RELNOTOPEN) {
+        return E_RELNOTOPEN;
     }
-  } else if (type == STRING) {
-    strcpy(attrVal.sVal, strVal);
-  }
-
-  /*** Selecting records from the source relation ***/
-
-  // Before calling the search function, reset the search to start from the first hit
-  // using RelCacheTable::resetSearchIndex()
-
-  RelCatEntry relCatEntry;
-  // get relCatEntry using RelCacheTable::getRelCatEntry()
-	RelCacheTable::getRelCatEntry(srcRelId,&relCatEntry);
-	RelCacheTable::resetSearchIndex(srcRelId);
-	;
-  /************************
-  The following code prints the contents of a relation directly to the output
-  console. Direct console output is not permitted by the actual the NITCbase
-  specification and the output can only be inserted into a new relation. We will
-  be modifying it in the later stages to match the specification.
-  ************************/
-
-  printf("|");
-  for (int i = 0; i < relCatEntry.numAttrs; ++i) {
+    /* --------------------------------------------------------
+     * STEP 2: Get attribute metadata
+     * -------------------------------------------------------- */
     AttrCatEntry attrCatEntry;
-    // get attrCatEntry at offset i using AttrCacheTable::getAttrCatEntry()
-    AttrCacheTable::getAttrCatEntry(srcRelId,i,&attrCatEntry);
-//    printf(" %s |", attrCatEntry.attrName);
-  }
-  printf("\n");
+    int ret = AttrCacheTable::getAttrCatEntry(
+                  srcRelId, attr, &attrCatEntry);
 
-  while (true) {
-    RecId searchRes = BlockAccess::linearSearch(srcRelId, attr, attrVal, op);
-
-    if (searchRes.block != -1 && searchRes.slot != -1) {
-
-      // get the record at searchRes using BlockBuffer.getRecord
-		RecBuffer Block(searchRes.block);
-      // print the attribute values in the same format as above
-		Attribute  record[relCatEntry.numAttrs];
-		Block.getRecord(record,searchRes.slot);
-
-		for(int i=0;i<relCatEntry.numAttrs;i++){
-			AttrCatEntry attrCatEntry;
-			AttrCacheTable::getAttrCatEntry(srcRelId,i,&attrCatEntry);
-
-			if(attrCatEntry.attrType ==1){
-			//	printf(" %s |",record[i].sVal);
-			}
-			else
-			{
-			//	printf(" %d |",(int)record[i].nVal);
-			}
-			//printf("\n");
-		}
-
-    } else {
-
-      // (all records over)
-      break;
+    if (ret != SUCCESS) {
+	    return E_ATTRNOTEXIST;
     }
-  }
 
-  return SUCCESS;
+    /* --------------------------------------------------------
+     * STEP 3: Convert condition value
+     * -------------------------------------------------------- */
+    Attribute attrVal;
+
+    if (attrCatEntry.attrType == NUMBER) {
+        if (isNumber(strVal)) {
+            attrVal.nVal = atof(strVal);
+        } else {
+            return E_ATTRTYPEMISMATCH;
+        }
+    } else { // STRING
+        strcpy(attrVal.sVal, strVal);
+    }
+
+    /* --------------------------------------------------------
+     * STEP 4: Reset search index
+     * -------------------------------------------------------- */
+    RelCacheTable::resetSearchIndex(srcRelId);
+
+    /* --------------------------------------------------------
+     * STEP 5: Get relation metadata
+     * -------------------------------------------------------- */
+    RelCatEntry relCatEntry;
+    RelCacheTable::getRelCatEntry(srcRelId, &relCatEntry);
+
+    /* --------------------------------------------------------
+     * STEP 6: Print header
+     * -------------------------------------------------------- */
+    printf("|");
+    for (int i = 0; i < relCatEntry.numAttrs; i++) {
+        AttrCatEntry temp;
+        AttrCacheTable::getAttrCatEntry(srcRelId, i, &temp);
+        printf(" %s |", temp.attrName);
+    }
+    printf("\n");
+
+    /* --------------------------------------------------------
+     * STEP 7: Linear search loop
+     * -------------------------------------------------------- */
+    while (true) {
+
+        RecId recId =
+            BlockAccess::linearSearch(
+                srcRelId, attr, attrVal, op);
+
+        if (recId.block == -1 && recId.slot == -1) {
+            break;
+        }
+
+        RecBuffer recBuffer(recId.block);
+        Attribute record[relCatEntry.numAttrs];
+        recBuffer.getRecord(record, recId.slot);
+
+        printf("|");
+        for (int i = 0; i < relCatEntry.numAttrs; i++) {
+            AttrCatEntry temp;
+            AttrCacheTable::getAttrCatEntry(srcRelId, i, &temp);
+
+            if (temp.attrType == NUMBER)
+                printf(" %.0f |", record[i].nVal);
+            else
+                printf(" %s |", record[i].sVal);
+        }
+        printf("\n");
+    }
+
+    return SUCCESS;
 }
 
-
-// will return if a string can be parsed as a floating point number
+/* ------------------------------------------------------------
+ * Helper: checks if string is numeric
+ * ------------------------------------------------------------ */
 bool isNumber(char *str) {
-  int len;
-  float ignore;
-  /*
-    sscanf returns the number of elements read, so if there is no float matching
-    the first %f, ret will be 0, else it'll be 1
-
-    %n gets the number of characters read. this scanf sequence will read the
-    first float ignoring all the whitespace before and after. and the number of
-    characters read that far will be stored in len. if len == strlen(str), then
-    the string only contains a float with/without whitespace. else, there's other
-    characters.
-  */
-  int ret = sscanf(str, "%f %n", &ignore, &len);
-  return ret == 1 && len == strlen(str);
+    int len;
+    float ignore;
+    int ret = sscanf(str, "%f %n", &ignore, &len);
+    return ret == 1 && len == strlen(str);
 }
 

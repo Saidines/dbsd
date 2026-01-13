@@ -3,6 +3,29 @@
 #include <cstring>
 #include <iostream>
 
+/*
+ * ============================================================
+ * FRONTEND INTERFACE — STAGE 4
+ * ============================================================
+ *
+ * PURPOSE:
+ * --------
+ * Frontend layer acts as a BRIDGE between:
+ *
+ *   User Commands  →  Algebra Layer
+ *
+ * In Stage-4:
+ * -----------
+ * • ONLY SELECT ... WHERE is implemented
+ * • All other commands are STUBS
+ *
+ * VIVA ONE-LINER:
+ * ---------------
+ * "Frontend parses commands and delegates execution
+ *  to the Algebra Layer."
+ */
+
+
 int Frontend::create_table(char relname[ATTR_SIZE], int no_attrs, char attributes[][ATTR_SIZE],
                            int type_attrs[]) {
   // Schema::createRel
@@ -61,13 +84,33 @@ int Frontend::select_attrlist_from_table(char relname_source[ATTR_SIZE], char re
   return SUCCESS;
 }
 
-int Frontend::select_from_table_where(char relname_source[ATTR_SIZE], char relname_target[ATTR_SIZE],
-                                      char attribute[ATTR_SIZE], int op, char value[ATTR_SIZE]) {
-  // Algebra::select
-  printf("working\n");
-  int a= Algebra::select(relname_source, relname_target, attribute, op, value);
-//  printf("a");
-  return 0;
+/*
+ * ============================================================
+ * STAGE-4: SELECT ... WHERE HANDLER (IMPLEMENTED)
+ * ============================================================
+ *
+ * Maps:
+ *   SELECT * FROM Rel INTO Target WHERE attr op value
+ * →
+ *   Algebra::select()
+ *
+ * NOTE (VIVA):
+ * -------------
+ * • Frontend does NOT perform search
+ * • Frontend does NOT access cache or buffer
+ * • It ONLY forwards parameters to Algebra Layer
+ */
+int Frontend::select_from_table_where(char relname_source[ATTR_SIZE],
+                                      char relname_target[ATTR_SIZE],
+                                      char attribute[ATTR_SIZE],
+                                      int op,
+                                      char value[ATTR_SIZE]) {
+
+  return Algebra::select(relname_source,
+                         relname_target,
+                         attribute,
+                         op,
+                         value);
 }
 
 int Frontend::select_attrlist_from_table_where(char relname_source[ATTR_SIZE], char relname_target[ATTR_SIZE],
