@@ -62,7 +62,7 @@ int Algebra::select(char srcRel[ATTR_SIZE], char targetRel[ATTR_SIZE], char attr
     AttrCatEntry attrCatEntry;
     // get attrCatEntry at offset i using AttrCacheTable::getAttrCatEntry()
     AttrCacheTable::getAttrCatEntry(srcRelId,i,&attrCatEntry);
-//    printf(" %s |", attrCatEntry.attrName);
+    printf(" %s |", attrCatEntry.attrName);
   }
   printf("\n");
 
@@ -82,13 +82,13 @@ int Algebra::select(char srcRel[ATTR_SIZE], char targetRel[ATTR_SIZE], char attr
 			AttrCacheTable::getAttrCatEntry(srcRelId,i,&attrCatEntry);
 
 			if(attrCatEntry.attrType ==1){
-			//	printf(" %s |",record[i].sVal);
+				printf(" %s |",record[i].sVal);
 			}
 			else
 			{
-			//	printf(" %d |",(int)record[i].nVal);
+				printf(" %d |",(int)record[i].nVal);
 			}
-			//printf("\n");
+			printf("\n");
 		}
 
     } else {
