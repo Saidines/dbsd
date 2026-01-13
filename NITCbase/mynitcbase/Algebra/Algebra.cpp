@@ -15,9 +15,7 @@ the arguments of the function are
 */
 bool isNumber(char*str);
 int Algebra::select(char srcRel[ATTR_SIZE], char targetRel[ATTR_SIZE], char attr[ATTR_SIZE], int op, char strVal[ATTR_SIZE]) {
-  	
 	int srcRelId = OpenRelTable::getRelId(srcRel);      // we'll implement this later
-	printf("%d",srcRelId);
   if (srcRelId == E_RELNOTOPEN) {
     return E_RELNOTOPEN;
   }
@@ -25,8 +23,8 @@ int Algebra::select(char srcRel[ATTR_SIZE], char targetRel[ATTR_SIZE], char attr
   AttrCatEntry attrCatEntry;
   // get the attribute catalog entry for attr, using AttrCacheTable::getAttrcatEntry()
   //    return E_ATTRNOTEXIST if it returns the error
-		AttrCacheTable::getAttrCatEntry(srcRelId,attr,&attrCatEntry);
-
+	int ret=AttrCacheTable::getAttrCatEntry(srcRelId,attr,&attrCatEntry);
+	if(ret!=SUCCESS) return E_ATTRNOTEXIST;
   /*** Convert strVal (string) to an attribute of data type NUMBER or STRING ***/
   int type = attrCatEntry.attrType;
   Attribute attrVal;
@@ -47,9 +45,10 @@ int Algebra::select(char srcRel[ATTR_SIZE], char targetRel[ATTR_SIZE], char attr
 
   RelCatEntry relCatEntry;
   // get relCatEntry using RelCacheTable::getRelCatEntry()
-	RelCacheTable::getRelCatEntry(srcRelId,&relCatEntry);
+	 ret=RelCacheTable::getRelCatEntry(srcRelId,&relCatEntry);
+	if(ret!=SUCCESS) return E_ATTRNOTEXIST;
 	RelCacheTable::resetSearchIndex(srcRelId);
-	;
+	
   /************************
   The following code prints the contents of a relation directly to the output
   console. Direct console output is not permitted by the actual the NITCbase
