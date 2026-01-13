@@ -1,7 +1,7 @@
 #include "OpenRelTable.h"
 #include<stdlib.h>
 #include <cstring>
-
+#include<cstdio>
 OpenRelTable::OpenRelTable() {
 
   // initialize relCache and attrCache with nullptr
@@ -148,12 +148,13 @@ will just hardcode it. In subsequent stages, we will loop through all the relati
 and open the appropriate one.
 */
 int OpenRelTable::getRelId(char relName[ATTR_SIZE]) {
-	
-	if(strcpy(relName,RELCAT_RELNAME)==0) return RELCAT_RELID;
-	if(strcpy(relName,ATTRCAT_RELNAME)==0) return ATTRCAT_RELID;
+	printf("hit");
+	return 0;	
+	if(strcpy(relName,RELCAT_RELNAME)==0) return 0;
+	if(strcpy(relName,ATTRCAT_RELNAME)==0) return 1;
   // if relname is RELCAT_RELNAME, return RELCAT_RELID
   // if relname is ATTRCAT_RELNAME, return ATTRCAT_RELID
 
-  return E_RELNOTOPEN;
+  return 0;
 }
 

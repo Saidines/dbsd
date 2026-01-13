@@ -1,7 +1,7 @@
 #include "Algebra.h"
 #include <cstdlib>
 #include <cstring>
-#include <cstdio>
+#include <stdio.h>
 
 
 
@@ -15,7 +15,8 @@ the arguments of the function are
 */
 bool isNumber(char*str);
 int Algebra::select(char srcRel[ATTR_SIZE], char targetRel[ATTR_SIZE], char attr[ATTR_SIZE], int op, char strVal[ATTR_SIZE]) {
-  int srcRelId = OpenRelTable::getRelId(srcRel);      // we'll implement this later
+  	
+	int srcRelId = OpenRelTable::getRelId(srcRel);      // we'll implement this later
 	printf("%d",srcRelId);
   if (srcRelId == E_RELNOTOPEN) {
     return E_RELNOTOPEN;
@@ -47,6 +48,8 @@ int Algebra::select(char srcRel[ATTR_SIZE], char targetRel[ATTR_SIZE], char attr
   RelCatEntry relCatEntry;
   // get relCatEntry using RelCacheTable::getRelCatEntry()
 	RelCacheTable::getRelCatEntry(srcRelId,&relCatEntry);
+	RelCacheTable::resetSearchIndex(srcRelId);
+	;
   /************************
   The following code prints the contents of a relation directly to the output
   console. Direct console output is not permitted by the actual the NITCbase
