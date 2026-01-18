@@ -51,7 +51,7 @@ int numOfAttributes = attrCatHeader.numEntries;
     printf("\n");
   }*/
 
-  for(int i=0;i<=2;i++){
+  /*for(int i=0;i<=2;i++){
   	RelCatEntry relCatBuf;
 	RelCacheTable::getRelCatEntry(i,&relCatBuf);
 	char* relname = relCatBuf.relName;
@@ -70,7 +70,7 @@ int numOfAttributes = attrCatHeader.numEntries;
 
 
 
-  }
+  }*/
 
-  return 0;
+  return FrontendInterface::handleFrontend(argc, argv);
 }

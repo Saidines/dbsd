@@ -15,7 +15,7 @@ int AttrCacheTable::getAttrCatEntry(int relId, int attrOffset, AttrCatEntry* att
 	}
   // check if attrCache[relId] == nullptr and return E_RELNOTOPEN if true
 		if(attrCache[relId]==NULL) {
-			E_RELNOTOPEN;
+			return E_RELNOTOPEN;
 		}
   // traverse the linked list of attribute cache entries
   for (AttrCacheEntry* entry = attrCache[relId]; entry != nullptr; entry = entry->next) {
@@ -42,4 +42,28 @@ void AttrCacheTable::recordToAttrCatEntry(union Attribute record[ATTRCAT_NO_ATTR
 	strcpy(attrCatEntry->attrName,record[ATTRCAT_ATTR_NAME_INDEX].sVal);
 	attrCatEntry->attrType=record[ATTRCAT_ATTR_TYPE_INDEX].nVal;
   // copy the rest of the fields in the record to the attrCacheEntry struct
+}
+
+/* returns the attribute with name `attrName` for the relation corresponding to relId
+NOTE: this function expects the caller to allocate memory for `*attrCatBuf`
+*/
+int AttrCacheTable::getAttrCatEntry(int relId, char attrName[ATTR_SIZE], AttrCatEntry* attrCatBuf) {
+  // check that relId is valid and corresponds to an open relation
+  if (relId < 0 || relId >= MAX_OPEN) { 
+    return E_OUTOFBOUND;
+  } 
+  if (attrCache[relId] == nullptr) {
+    return E_RELNOTOPEN;
+  } 
+  
+  // traverse the linked list of attribute cache entries and find the entry whose attrName matches attrName
+  for (AttrCacheEntry* entry = attrCache[relId]; entry != nullptr; entry = entry->next) {
+    if (strcmp(entry->attrCatEntry.attrName, attrName) == 0) {
+      *attrCatBuf = entry->attrCatEntry;
+      return SUCCESS;
+    }
+  }
+
+  // no attribute with name attrName for the relation
+  return E_ATTRNOTEXIST;
 }
