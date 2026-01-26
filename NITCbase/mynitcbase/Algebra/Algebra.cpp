@@ -1,7 +1,7 @@
 #include "Algebra.h"
 #include <iostream>
 #include <cstring>
-
+#include <cstdio>
 // will return if a string can be parsed as a floating point number
 bool isNumber(char *str) {
     int len;
@@ -29,8 +29,10 @@ the arguments of the function are
 - strVal - the value that we want to compare against (represented as a string)
 */
 int Algebra::select(char srcRel[ATTR_SIZE], char targetRel[ATTR_SIZE], char attr[ATTR_SIZE], int op, char strVal[ATTR_SIZE]) {
-    int srcRelId = OpenRelTable::getRelId(srcRel);      // we'll implement this later
-    if (srcRelId == E_RELNOTOPEN) {
+    int srcRelId = OpenRelTable::getRelId(srcRel);  
+        // we'll implement this later
+     
+    if (srcRelId == E_RELNOTOPEN||srcRelId <0||srcRelId>=MAX_OPEN) {
         return E_RELNOTOPEN;
     }
 
