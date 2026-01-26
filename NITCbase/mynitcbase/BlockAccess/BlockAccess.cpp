@@ -50,12 +50,13 @@ RecId BlockAccess::linearSearch(int relId, char attrName[ATTR_SIZE], union Attri
         RecBuffer recBuffer(block);
 
         HeadInfo head;
-        Attribute catRecord[RELCAT_NO_ATTRS];
+        recBuffer.getHeader(&head);
+        Attribute catRecord[head.numAttrs];
 
         // get the record with id (block, slot) using RecBuffer::getRecord()
         recBuffer.getRecord(catRecord, slot);
         // get header of the block using RecBuffer::getHeader() function
-        recBuffer.getHeader(&head);
+        
         // get slot map of the block using RecBuffer::getSlotMap() function
         unsigned char slotMap[head.numSlots];
         recBuffer.getSlotMap(slotMap);
