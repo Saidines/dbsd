@@ -79,6 +79,7 @@ int RecBuffer::getRecord(union Attribute *rec, int slotNum) {
 
 
 
+
   // read the block at this.blockNum into a buffer
          //   memcpy(&rec,buffer+HEADER_SIZE+head.numSlots+head.numAttrs*ATTR_SIZE*slotNum,ATTR_SIZE*head.numAttrs);
   /* record at slotNum will be at offset HEADER_SIZE + slotMapSize + (recordSize * slotNum)
@@ -92,6 +93,59 @@ int RecBuffer::getRecord(union Attribute *rec, int slotNum) {
   memcpy(rec, slotPointer, recordSize);
 
   return SUCCESS;
+}
+
+
+  int RecBuffer::setRecord(union Attribute *rec, int slotNum)
+{
+    unsigned char *bufferPtr;
+    /* get the starting address of the buffer containing the block
+       using loadBlockAndGetBufferPtr(&bufferPtr). */
+    int ret = loadBlockAndGetBufferPtr(&bufferPtr);
+
+    // if loadBlockAndGetBufferPtr(&bufferPtr) != SUCCESS
+    // return the value returned by the call.
+    if (ret != SUCCESS)
+    {
+        return ret;
+    }
+
+    /* get the header of the block using the getHeader() function */
+    struct HeadInfo head;
+    this->getHeader(&head);
+
+    // get number of attributes in the block.
+    int numAttrs = head.numAttrs;
+
+    // get the number of slots in the block.
+    int numSlots = head.numSlots;
+
+    // if input slotNum is not in the permitted range return E_OUTOFBOUND.
+    if (slotNum >= numSlots || slotNum < 0)
+    {
+        return E_OUTOFBOUND;
+    }
+
+    /* offset bufferPtr to point to the beginning of the record at required
+       slot. the block contains the header, the slotmap, followed by all
+       the records. so, for example,
+       record at slot x will be at bufferPtr + HEADER_SIZE + (x*recordSize)
+       copy the record from `rec` to buffer using memcpy
+       (hint: a record will be of size ATTR_SIZE * numAttrs)
+    */
+    int recordSize = numAttrs * ATTR_SIZE;
+    int offset = HEADER_SIZE + numSlots + (recordSize * slotNum);
+    memcpy(bufferPtr + offset, rec, recordSize);
+
+    // update dirty bit using setDirtyBit()
+    StaticBuffer::setDirtyBit(this->blockNum);
+
+    /* (the above function call should not fail since the block is already
+       in buffer and the blockNum is valid. If the call does fail, there
+       exists some other issue in the code) */
+
+    // return SUCCESS
+    return SUCCESS;
 }
 
 int BlockBuffer::loadBlockAndGetBufferPtr(unsigned char **bufferPtr){
@@ -145,5 +199,77 @@ int RecBuffer::getSlotMap(unsigned char *slotMap) {
   // copy the values from `slotMapInBuffer` to `slotMap` (size is `slotCount`)
 
   //return SUCCESS;
+}
+
+/*
+int StaticBuffer::getFreeBuffer(int blockNum){
+    // Check if blockNum is valid (non zero and less than DISK_BLOCKS)
+    // and return E_OUTOFBOUND if not valid.
+if(blockNum<0||blockNum>DISK_BLOCKS) return E_OUTOFBOUND;
+    // increase the timeStamp in metaInfo of all occupied buffers.
+int bufferNum=-1;
+    for(int i=0;i<BUFFER_CAPACITY;i++){
+    if(metainfo[i].free==false){
+        metainfo[i].timeStamp+=1;
+    }
+    else bufferNum=i;
+}
+
+if(bufferNum!=-1) return bufferNum;
+    // let bufferNum be used to store the buffer number of the free/freed buffer.
+    bufferNum=0;
+    for(int i=0;i<BUFFER_CAPACITY;i++){
+        if(metainfo[i].timeStamp>metainfo[bufferNum].timeStamp ){
+            bufferNum=i;
+            break;
+        }
+    } 
+    if(metainfo[bufferNum].dirty==true){
+        unsigned char* bufferPtr;
+      loadBlockAndGetBufferPtr(&bufferPtr);
+        Disk::writeBlock(blocks[bufferNum],metainfo[bufferNum].blockNum);
+        
+      } 
+      return bufferNum;
+    // iterate through metainfo and check if there is any buffer free
+
+    // if a free buffer is available, set bufferNum = index of that free buffer.
+
+    // if a free buffer is not available,
+    //     find the buffer with the largest timestamp
+    //     IF IT IS DIRTY, write back to the disk using Disk::writeBlock()
+    //     set bufferNum = index of this buffer
+
+    // update the metaInfo entry corresponding to bufferNum with
+    // free:false, dirty:false, blockNum:the input block number, timeStamp:0.
+
+    // return the bufferNum.
+}*/
+
+
+int StaticBuffer::setDirtyBit(int blockNum){
+    // find the buffer index corresponding to the block using getBufferNum().
+    int bufferNum=StaticBuffer::getBufferNum(blockNum); 
+    if(bufferNum==E_BLOCKNOTINBUFFER){
+        return E_BLOCKNOTINBUFFER;
+    }
+    if(bufferNum==E_OUTOFBOUND){  
+        return E_OUTOFBOUND;
+    } 
+    else{
+        metainfo[bufferNum].dirty=true;
+    } 
+    return SUCCESS;
+    // if block is not present in the buffer (bufferNum = E_BLOCKNOTINBUFFER)
+    //     return E_BLOCKNOTINBUFFER
+
+    // if blockNum is out of bound (bufferNum = E_OUTOFBOUND)
+    //     return E_OUTOFBOUND
+
+    // else
+    //     (the bufferNum is valid)
+    //     set the dirty bit of that buffer to true in metainfo
+
+    // return SUCCESS
 }
 

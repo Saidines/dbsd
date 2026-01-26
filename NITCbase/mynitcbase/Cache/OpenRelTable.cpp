@@ -207,7 +207,6 @@ int OpenRelTable::getFreeOpenRelTableEntry() {
 
 
 
-
 int OpenRelTable::openRel(char relName[ATTR_SIZE])
 {
     int ret = OpenRelTable::getRelId(relName);
@@ -316,18 +315,17 @@ int OpenRelTable::openRel(char relName[ATTR_SIZE])
 }
 
 
-
-
-
-
-int OpenRelTable::getRelId(char relName[ATTR_SIZE]) {
-  for (int i = 0; i < MAX_OPEN; ++i) {
-    if (OpenRelTable::tableMetaInfo[i].free == false &&
-        strcmp((char*)OpenRelTable::tableMetaInfo[i].relName, (char*)relName) == 0) {
-      return i;
+int OpenRelTable::getRelId(char relName[ATTR_SIZE])
+{
+    for (int i = 0; i < MAX_OPEN; i++)
+    {
+        if (tableMetaInfo[i].free)
+            continue;
+        if (strcmp(tableMetaInfo[i].relName, relName) == 0)
+            return i;
     }
-  }
-  return E_RELNOTOPEN;
+
+    return E_RELNOTOPEN;
 }
 
 
