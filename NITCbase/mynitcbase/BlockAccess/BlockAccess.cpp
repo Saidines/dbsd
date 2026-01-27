@@ -129,6 +129,14 @@ RecId BlockAccess::linearSearch(int relId, char attrName[ATTR_SIZE], union Attri
 
 int BlockAccess::renameRelation(char oldName[ATTR_SIZE], char newName[ATTR_SIZE])
 {
+     if((strcmp("RELATIONCAT",oldName)&&strcmp("ATTRIBUTECAT",oldName))==0){
+    return E_NOTPERMITTED;    
+ }
+
+  if((strcmp("RELATIONCAT",newName)&&strcmp("ATTRIBUTECAT",newName))==0){
+    return E_NOTPERMITTED;    
+ }
+
     /* reset the searchIndex of the relation catalog using
        RelCacheTable::resetSearchIndex() */
     RelCacheTable::resetSearchIndex(RELCAT_RELID);
