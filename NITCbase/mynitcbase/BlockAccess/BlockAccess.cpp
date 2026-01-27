@@ -134,11 +134,11 @@ int BlockAccess::renameRelation(char oldName[ATTR_SIZE], char newName[ATTR_SIZE]
        RelCacheTable::resetSearchIndex() */
         RelCacheTable::resetSearchIndex(RELCAT_RELID);
 
-if((strcmp("RELATIONCAT",newName)||strcmp("ATTRIBUTECAT",newName))){
+if((strcmp("RELATIONCAT",newName)&&strcmp("ATTRIBUTECAT",newName))==0){
     return E_NOTPERMITTED;    
  }
 
- if((strcmp("RELATIONCAT",oldName)||strcmp("ATTRIBUTECAT",oldName))){
+ if((strcmp("RELATIONCAT",oldName)&&strcmp("ATTRIBUTECAT",oldName))==0){
    return E_NOTPERMITTED;    
  }
 
