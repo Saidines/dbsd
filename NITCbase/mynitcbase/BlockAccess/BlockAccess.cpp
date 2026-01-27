@@ -223,7 +223,7 @@ for(int i=0;i<numAttrs;i++){
 
 int BlockAccess::renameAttribute(char relName[ATTR_SIZE], char oldName[ATTR_SIZE], char newName[ATTR_SIZE]) {
 
-    if((strcmp("RELATIONCAT",relName)||strcmp("ATTRIBUTECAT",relName))){
+    if((strcmp("RELATIONCAT",relName)&&strcmp("ATTRIBUTECAT",relName))==0){
     return E_NOTPERMITTED;    
  }
 
