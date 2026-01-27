@@ -211,6 +211,7 @@ for(int i=0;i<numAttrs;i++){
     RecBuffer recBuffer(recId.block);
     recBuffer.getRecord(record,recId.slot);
     strcpy(record[ATTRCAT_REL_NAME_INDEX].sVal,newName);
+    recBuffer.setRecord(record,recId.slot);
     
 }
 
