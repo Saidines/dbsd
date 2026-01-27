@@ -273,7 +273,7 @@ recBuffer.setRecord(attrCatEntryRecord,recId.slot);
 break;
 }
 
-else if(strcmp((char*)attrCatEntryRecord[ATTRCAT_ATTR_NAME_INDEX].sVal,oldName)==0){
+else if(strcmp((char*)attrCatEntryRecord[ATTRCAT_ATTR_NAME_INDEX].sVal,newName)==0){
     
 
 return E_ATTREXIST;
