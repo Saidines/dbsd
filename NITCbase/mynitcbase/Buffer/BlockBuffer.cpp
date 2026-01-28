@@ -148,28 +148,44 @@ int RecBuffer::getRecord(union Attribute *rec, int slotNum) {
     return SUCCESS;
 }
 
-int BlockBuffer::loadBlockAndGetBufferPtr(unsigned char **bufferPtr){
+int BlockBuffer::loadBlockAndGetBufferPtr(unsigned char **buffPtr)
+{
+    /* check whether the block is already present in the buffer
+       using StaticBuffer.getBufferNum() */
+    int bufferNum = StaticBuffer::getBufferNum(this->blockNum);
 
-	int bufferNum = StaticBuffer::getBufferNum(this->blockNum);
-
-
-	if(bufferNum == E_BLOCKNOTINBUFFER){
-	
-		bufferNum = StaticBuffer::getFreeBuffer(this->blockNum);
-
-
-		if(bufferNum==E_OUTOFBOUND){
-			return E_OUTOFBOUND;
-		}	
-
-		Disk::readBlock(StaticBuffer::blocks[bufferNum],this->blockNum);
-
-	}
-
-	*bufferPtr=StaticBuffer::blocks[bufferNum];
-	return SUCCESS;
-
-}	
+    // if present (!=E_BLOCKNOTINBUFFER),
+    // set the timestamp of the corresponding buffer to 0 and increment the
+    // timestamps of all other occupied buffers in BufferMetaInfo.
+    if (bufferNum != E_BLOCKNOTINBUFFER)
+    {
+        StaticBuffer::metainfo[bufferNum].timeStamp = 0;
+        for (int i = 0; i < BUFFER_CAPACITY; i++)
+        {
+            if (StaticBuffer::metainfo[i].free == false)
+            {
+                StaticBuffer::metainfo[i].timeStamp++;
+            }
+        }
+    }
+    else
+    {
+        // if not present
+        // get a free buffer using StaticBuffer.getFreeBuffer()
+        // if the call returns E_OUTOFBOUND, return E_OUTOFBOUND here as
+        // the blockNum is invalid
+        // Read the block into the free buffer using readBlock()
+        bufferNum = StaticBuffer::getFreeBuffer(this->blockNum);
+        if (bufferNum == E_OUTOFBOUND)
+        {
+            return E_OUTOFBOUND;
+        }
+        Disk::readBlock(StaticBuffer::blocks[bufferNum], this->blockNum);
+    }
+    *buffPtr = StaticBuffer::blocks[bufferNum];
+    // return SUCCESS;
+    return SUCCESS;
+}
 
 
 /* used to get the slotmap from a record block
