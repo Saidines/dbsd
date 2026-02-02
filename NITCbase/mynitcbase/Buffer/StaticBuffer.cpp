@@ -93,7 +93,7 @@ int blockmapslot=0;
 		unsigned char buffer[BLOCK_SIZE];
 		Disk::readBlock(buffer,i);
 		for(int slot=0;slot<BLOCK_SIZE;slot++){
-			StaticBuffer::blockAllocMap[blockMapSlot] = buffer[slot];
+			StaticBuffer::blockAllocMap[blockmapslot] = buffer[slot];
 
 		}
 
@@ -121,7 +121,7 @@ StaticBuffer::~StaticBuffer() {
 		unsigned char buffer[BLOCK_SIZE];
 		
 		for(int slot=0;slot<BLOCK_SIZE;slot++){
-	 buffer[slot] =	StaticBuffer::blockAllocMap[blockMapSlot] ;
+	 buffer[slot] =	StaticBuffer::blockAllocMap[blockmapslot] ;
 
 		}
 		Disk::writeBlock(buffer,i);

@@ -100,14 +100,35 @@ int RelCacheTable::resetSearchIndex(int relId) {
   return SUCCESS;
 }
 
-void RelCacheTable::relCatEntryToRecord(,RelCatEntry relcat,union Attribute *record){
+void RelCacheTable::relCatEntryToRecord(RelCatEntry* relcat,union Attribute *record){
  // Attribute record[RELCAT_SIZE];
-  strcpy(record[0].sVal,relcat.relName);
-  record[1].nVal=relcat.numAttrs;
-  record[2].nVal=relcat.numRecs;
-  record[3].nVal=relcat.firstBlk;
-  record[4].nVal=relcat.lastBlk;
-  record[5].nVal=relcat.numSlotsPerBlk;
+  strcpy(record[0].sVal,relcat->relName);
+  record[1].nVal=relcat->numAttrs;
+  record[2].nVal=relcat->numRecs;
+  record[3].nVal=relcat->firstBlk;
+  record[4].nVal=relcat->lastBlk;
+  record[5].nVal=relcat->numSlotsPerBlk;
 
 
+}
+
+
+int RelCacheTable::setRelCatEntry(int relId, RelCatEntry *relCatBuf) {
+
+  if(relId<0||relId>=MAX_OPEN/*relId is outside the range [0, MAX_OPEN-1]*/) {
+    return E_OUTOFBOUND;
+  }
+
+  if(RelCacheTable::relCache[relId]==nullptr/*entry corresponding to the relId in the Relation Cache Table is free*/) {
+    return E_RELNOTOPEN;
+  }
+
+  // copy the relCatBuf to the corresponding Relation Catalog entry in
+  // the Relation Cache Table.
+    RelCacheTable::relCache[relId]->relCatEntry=*relCatBuf;
+    RelCacheTable::relCache[relId]->dirty=true;
+  // set the dirty flag of the corresponding Relation Cache entry in
+  // the Relation Cache Table.
+
+  return SUCCESS;
 }

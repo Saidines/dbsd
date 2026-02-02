@@ -1,6 +1,7 @@
 #include "BlockBuffer.h"
 #include <cstdlib>
 #include <cstring>
+#include <cstdio>
 // the declarations for these functions can be found in "BlockBuffer.h"
 
 // Compare two attributes based on their type
@@ -324,7 +325,7 @@ int BlockBuffer::setBlockType(int blockType){
 
 }
 
-int BlockBuffer::getFreeBlock(char blockType)
+int BlockBuffer::getFreeBlock(int blockType)
 {
     // TODO: Cross check whether blockType is char or int
     //  iterate through the StaticBuffer::blockAllocMap and find the block number
@@ -336,17 +337,7 @@ int BlockBuffer::getFreeBlock(char blockType)
         if (StaticBuffer::blockAllocMap[i] == UNUSED_BLK)
         {
             blockNumber = i;
-            if (blockType == 'R')
-                StaticBuffer::blockAllocMap[i] = REC;
-            else if (blockType == 'I')
-                StaticBuffer::blockAllocMap[i] = IND_INTERNAL;
-            else if (blockType == 'L')
-                StaticBuffer::blockAllocMap[i] = IND_LEAF;
-            else if (blockType == 'B')
-                StaticBuffer::blockAllocMap[i] = BMAP;
-            else if (blockType == 'D')
-                StaticBuffer::blockAllocMap[i] = UNUSED_BLK;
-            type = StaticBuffer::blockAllocMap[i];
+           setBlockType(blockType);
             break;
         }
     }
@@ -363,6 +354,10 @@ int BlockBuffer::getFreeBlock(char blockType)
     // find a free buffer using StaticBuffer::getFreeBuffer() .
     int bufferNum = StaticBuffer::getFreeBuffer(blockNumber);
 
+    if (bufferNum < 0 or bufferNum >= BUFFER_CAPACITY) {
+        printf("Error:buffer is full\n");
+        return bufferNum;
+    }
     // initialize the header of the block passing a struct HeadInfo with values
     // pblock: -1, lblock: -1, rblock: -1, numEntries: 0, numAttrs: 0, numSlots: 0
     // to the setHeader() function.
@@ -374,7 +369,7 @@ int BlockBuffer::getFreeBlock(char blockType)
     head.numEntries = 0;
     head.numAttrs = 0;
     head.numSlots = 0;
-    this->setHeader(&head);
+    setHeader(&head);
 
     // update the block type of the block to the input block type using setBlockType().
     // this->setBlockType(blockType);
@@ -387,12 +382,10 @@ int BlockBuffer::getFreeBlock(char blockType)
 BlockBuffer::BlockBuffer(char blockType){
     // allocate a block on the disk and a buffer in memory to hold the new block of
     // given type using getFreeBlock function and get the return error codes if any.
-int blockNum=getFreeBlock(blockType);
+    int Blocktype = blockType == 'R' ? REC : UNUSED_BLK;
+int blockNum=getFreeBlock(Blocktype);
 if(blockNum>=0&&blockNum<DISK_BLOCKS)
 this->blockNum=blockNum;
-else return blockNum;
-
-return blockNum;
 
     // set the blockNum field of the object to that of the allocated block
     // number if the method returned a valid block number,
@@ -404,3 +397,40 @@ return blockNum;
 
 RecBuffer::RecBuffer() : BlockBuffer('R'){}
 // call parent non-default constructor with 'R' denoting record block.
+
+int RecBuffer::setSlotMap(unsigned char *slotMap) {
+    unsigned char *bufferPtr;
+    int ret=loadBlockAndGetBufferPtr(&bufferPtr);
+    if(ret!=SUCCESS) return ret;
+    struct HeadInfo header;
+    getHeader(&header);
+    int numSlots=header.numSlots;
+    unsigned char *slotMapInBuffer = bufferPtr + HEADER_SIZE;
+    memcpy(slotMapInBuffer, slotMap, numSlots);
+    /* get the starting address of the buffer containing the block using
+       loadBlockAndGetBufferPtr(&bufferPtr). */
+
+    // if loadBlockAndGetBufferPtr(&bufferPtr) != SUCCESS
+        // return the value returned by the call.
+
+    // get the header of the block using the getHeader() function
+
+     /* the number of slots in the block */;
+ret=StaticBuffer::setDirtyBit(this->blockNum);
+if(ret!=SUCCESS) return ret;
+ 
+return ret;
+    // the slotmap starts at bufferPtr + HEADER_SIZE. Copy the contents of the
+    // argument `slotMap` to the buffer replacing the existing slotmap.
+    // Note that size of slotmap is `numSlots`
+
+    // update dirty bit using StaticBuffer::setDirtyBit
+    // if setDirtyBit failed, return the value returned by the call
+
+    // return SUCCESS
+}
+
+int BlockBuffer::getBlockNum(){
+return this->blockNum;
+    //return corresponding block number.
+}

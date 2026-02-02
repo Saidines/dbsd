@@ -332,7 +332,7 @@ int OpenRelTable::getRelId(char relName[ATTR_SIZE])
 int OpenRelTable::closeRel(int relId) {
   	if (relId == RELCAT_RELID || relId == ATTRCAT_RELID) return E_NOTPERMITTED;
 
-  	if (0 > relId || relId >= MAX_OPEN) return E_OUTOFBOUND;
+  	if (2 > relId || relId >= MAX_OPEN) return E_OUTOFBOUND;
 
   	if (tableMetaInfo[relId].free) return E_RELNOTOPEN;
 
@@ -379,14 +379,14 @@ int OpenRelTable::closeRel(int relId) {
   return SUCCESS;
 }
 
-
+/*
 int RelCacheTable::setRelCatEntry(int relId, RelCatEntry *relCatBuf) {
 
   if(relId<0||relId>=MAX_OPEN) {
     return E_OUTOFBOUND;
   }
 
-  if(RelCacheTable::relCache[relId]==nullptr/*entry corresponding to the relId in the Relation Cache Table is free*/) {
+  if(RelCacheTable::relCache[relId]==nullptr/*entry corresponding to the relId in the Relation Cache Table is free) {
     return E_RELNOTOPEN;
   }
 RelCacheTable::relCache[relId].relCatEntry=*relCatBuf;
@@ -397,4 +397,4 @@ RelCacheTable::relCache[relId].dirty=1;
   // the Relation Cache Table.
 
   return SUCCESS;
-}
+}*/
