@@ -100,3 +100,14 @@ int RelCacheTable::resetSearchIndex(int relId) {
   return SUCCESS;
 }
 
+void RelCacheTable::relCatEntryToRecord(,RelCatEntry relcat,union Attribute *record){
+ // Attribute record[RELCAT_SIZE];
+  strcpy(record[0].sVal,relcat.relName);
+  record[1].nVal=relcat.numAttrs;
+  record[2].nVal=relcat.numRecs;
+  record[3].nVal=relcat.firstBlk;
+  record[4].nVal=relcat.lastBlk;
+  record[5].nVal=relcat.numSlotsPerBlk;
+
+
+}

@@ -1,7 +1,7 @@
 #include "StaticBuffer.h"
 	unsigned char StaticBuffer::blocks[BUFFER_CAPACITY][BLOCK_SIZE];
 	 struct BufferMetaInfo StaticBuffer::metainfo[BUFFER_CAPACITY];
-
+	unsigned char StaticBuffer::blockAllocMap[DISK_BLOCKS];
 
 
 
@@ -9,7 +9,7 @@
 int StaticBuffer::getFreeBuffer(int blockNum)
 {
     // Check if blockNum is valid (non zero and less than DISK_BLOCKS)
-    // and return E_OUTOFBOUND if not valid.
+	    // and return E_OUTOFBOUND if not valid.
     if (blockNum < 0 || blockNum >= DISK_BLOCKS)
     {
         return E_OUTOFBOUND;
@@ -88,6 +88,16 @@ int StaticBuffer::getFreeBuffer(int blockNum)
 
 
 	StaticBuffer::StaticBuffer() {
+int blockmapslot=0;
+	for(int i=0;i<4;i++){
+		unsigned char buffer[BLOCK_SIZE];
+		Disk::readBlock(buffer,i);
+		for(int slot=0;slot<BLOCK_SIZE;slot++){
+			StaticBuffer::blockAllocMap[blockMapSlot] = buffer[slot];
+
+		}
+
+	}
 
   for (int bufferIndex = 0;bufferIndex<=BUFFER_CAPACITY-1;bufferIndex++) {
     // set metainfo[bufferindex] with the following values
@@ -105,6 +115,18 @@ StaticBuffer::~StaticBuffer() {
     using Disk::writeBlock()
 
     */
+    
+    int blockmapslot=0;
+	for(int i=0;i<4;i++){
+		unsigned char buffer[BLOCK_SIZE];
+		
+		for(int slot=0;slot<BLOCK_SIZE;slot++){
+	 buffer[slot] =	StaticBuffer::blockAllocMap[blockMapSlot] ;
+
+		}
+		Disk::writeBlock(buffer,i);
+
+	}
 
 	for(int i=0;i<BUFFER_CAPACITY;i++){
 		if(metainfo[i].free==false&&metainfo[i].dirty==true){
