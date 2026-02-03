@@ -2,7 +2,7 @@
 
 #include <cstdlib>
 #include <cstring>
-
+#include <cstdio>
 // the declarations for these functions can be found in "BlockBuffer.h"
 
 BlockBuffer::BlockBuffer(int blockNum) {
@@ -404,7 +404,7 @@ int BlockBuffer::getBlockNum(){
 void BlockBuffer::releaseBlock(){
 
     // if blockNum is INVALID_BLOCKNUM (-1), or it is invalidated already, do nothing
-  if (blockNum == INVALID_BLOCKNUM or
+  if (blockNum == INVALID_BLOCKNUM ||
       StaticBuffer::blockAllocMap[blockNum] == UNUSED_BLK) {
     printf("invalid block");
     return;
@@ -420,7 +420,7 @@ void BlockBuffer::releaseBlock(){
         // by setting the free flag of its StaticBuffer::tableMetaInfo entry
         // to true.
   int bufferNum = StaticBuffer::getBufferNum(blockNum);
-  if (bufferNum >= 0 and bufferNum < BUFFER_CAPACITY) {
+  if (bufferNum >= 0 && bufferNum < BUFFER_CAPACITY) {
     StaticBuffer::metainfo[bufferNum].free = true;
   }
         // free the block in disk by setting the data type of the entry

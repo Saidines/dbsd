@@ -430,7 +430,8 @@ int BlockAccess::insert(int relId, Attribute *record)
         /*
             set block's slot map with all slots marked as free
             (i.e. store SLOT_UNOCCUPIED for all the entries)
-            (use RecBuffer::setSlotMap() function)
+            (use RecBuffer::
+            Map() function)
         */
         unsigned char slotMap[numOfSlots];
         memset(slotMap, SLOT_UNOCCUPIED, numOfSlots);
@@ -543,7 +544,7 @@ int BlockAccess::deleteRelation(char relName[ATTR_SIZE]) {
 	RecId relCatRecId = BlockAccess::linearSearch(RELCAT_RELID, RELCAT_ATTR_RELNAME, relNameAttr ,EQ);
 
     // if the relation does not exist (linearSearch returned {-1, -1})
-	if (relCatRecId.block==-1 or relCatRecId.slot==-1) return E_RELNOTEXIST;
+	if (relCatRecId.block==-1 || relCatRecId.slot==-1) return E_RELNOTEXIST;
 
 	RecBuffer relCatBlockBuffer (relCatRecId.block);
 
@@ -587,7 +588,7 @@ int BlockAccess::deleteRelation(char relName[ATTR_SIZE]) {
         RecId attrCatRecId = BlockAccess::linearSearch(ATTRCAT_RELID, RELCAT_ATTR_RELNAME, relNameAttr, EQ);
 
         // if no more attributes to iterate over (attrCatRecId == {-1, -1})
-		if (attrCatRecId.block==-1 or attrCatRecId.slot==-1) break;
+		if (attrCatRecId.block==-1 || attrCatRecId.slot==-1) break;
 
         numberOfAttributesDeleted++;
 

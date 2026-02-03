@@ -166,28 +166,85 @@ AttrCacheTable::attrCache[2]=head;
   // set the value at AttrCacheTable::attrCache[ATTRCAT_RELID]
 }
 
-OpenRelTable::~OpenRelTable() {
+OpenRelTable::~OpenRelTable()
+{
+	// free all the memory that you allocated in the constructor
 
-	for(int i=0;i<MAX_OPEN;i++){
-		if(RelCacheTable::relCache[i]!=NULL){
-		free(RelCacheTable::relCache[i]);
-		RelCacheTable::relCache[i]=NULL;
-		}
-}
+	//? close all open relations (from rel-id = 2 onwards. Why?)
+	for (int i = 2; i < MAX_OPEN; ++i)
+		if (!tableMetaInfo[i].free)
+			OpenRelTable::closeRel(i); // we will implement this function later
+     RelCacheEntry *attrCatRelEntry =
+        RelCacheTable::relCache[ATTRCAT_RELID];
 
-	for(int i=0;i<MAX_OPEN;i++){
-		if(AttrCacheTable::attrCache[i]!=NULL){
-			struct AttrCacheEntry*head=AttrCacheTable::attrCache[i];
-			while(head!=NULL){
-				struct AttrCacheEntry * temp=head->next;
-				free(head);
-				head=temp;
-			}
-			AttrCacheTable::attrCache[i]=NULL;
+    if (attrCatRelEntry && attrCatRelEntry->dirty) {
 
+        /* Convert cache entry → catalog record */
+        Attribute relCatRecord[RELCAT_NO_ATTRS];
+        RelCacheTable::relCatEntryToRecord(
+            &attrCatRelEntry->relCatEntry,
+            relCatRecord
+  );
 
-		}
-	}
+        /* Write back to RELATIONCAT block */
+        RecBuffer relCatBlock(attrCatRelEntry->recId.block);
+        relCatBlock.setRecord(
+            relCatRecord,
+            attrCatRelEntry->recId.slot
+        );
+    }
+
+    /* Free ATTRIBUTECAT relation cache entry */
+    free(RelCacheTable::relCache[ATTRCAT_RELID]);
+    RelCacheTable::relCache[ATTRCAT_RELID] = nullptr;
+
+    /*  Write back RELATIONCAT relation cache entry */
+    RelCacheEntry *relCatRelEntry =
+        RelCacheTable::relCache[RELCAT_RELID];
+
+    if (relCatRelEntry && relCatRelEntry->dirty) {
+
+        /* Convert cache entry → catalog record */
+        Attribute relCatRecord[RELCAT_NO_ATTRS];
+        RelCacheTable::relCatEntryToRecord(
+            &relCatRelEntry->relCatEntry,
+            relCatRecord
+        );
+
+        /* Write back to RELATIONCAT block */
+        RecBuffer relCatBlock(relCatRelEntry->recId.block);
+        relCatBlock.setRecord(
+            relCatRecord,
+            relCatRelEntry->recId.slot
+        );
+    }
+
+    /* Free RELATIONCAT relation cache entry */
+    free(RelCacheTable::relCache[RELCAT_RELID]);
+    RelCacheTable::relCache[RELCAT_RELID] = nullptr;
+
+    /* Attribute cache entries of catalogs are never modified
+   at runtime (no indexes allowed on catalogs).
+   Hence, no disk write-back is needed.
+     */
+    AttrCacheEntry *curr;
+
+    curr = AttrCacheTable::attrCache[RELCAT_RELID];
+    while (curr) {
+        AttrCacheEntry *tmp = curr;
+        curr = curr->next;
+        free(tmp);
+    }
+    AttrCacheTable::attrCache[RELCAT_RELID] = nullptr;
+
+    curr = AttrCacheTable::attrCache[ATTRCAT_RELID];
+    while (curr) {
+        AttrCacheEntry *tmp = curr;
+        curr = curr->next;
+        free(tmp);
+    }
+    AttrCacheTable::attrCache[ATTRCAT_RELID] = nullptr;
+
 }
 
 
