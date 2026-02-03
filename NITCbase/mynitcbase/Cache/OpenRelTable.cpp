@@ -317,6 +317,11 @@ int OpenRelTable::openRel(char relName[ATTR_SIZE])
 
 int OpenRelTable::getRelId(char relName[ATTR_SIZE])
 {
+    if(strcmp(relName, "RELATIONCAT") == 0)
+        return RELCAT_RELID;
+    if(strcmp(relName, "ATTRIBUTECAT") == 0) 
+        return ATTRCAT_RELID;
+
     for (int i = 0; i < MAX_OPEN; i++)
     {
         if (tableMetaInfo[i].free)

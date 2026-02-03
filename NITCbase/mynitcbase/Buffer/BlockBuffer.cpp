@@ -290,23 +290,42 @@ int StaticBuffer::setDirtyBit(int blockNum){
     // return SUCCESS
 }
 
-int BlockBuffer::setHeader( struct HeadInfo * head){
-  unsigned char * bufferPtr;
-  int ret=loadBlockAndGetBufferPtr(&bufferPtr);
 
 
-  if(ret!=SUCCESS) return ret;
+int BlockBuffer::setHeader(struct HeadInfo *head) {
 
-  struct HeadInfo *bufferHeader = (struct HeadInfo*)bufferPtr;
-  bufferHeader->blockType=head->blockType;
-  bufferHeader->lblock=head->lblock;
-  bufferHeader->rblock=head->rblock;
-   bufferHeader->numEntries = head->numEntries;
-    bufferHeader->numAttrs = head->numAttrs;
-    bufferHeader->numSlots = head->numSlots;
-    bufferHeader->pblock = head->pblock;
-    return StaticBuffer::setDirtyBit(this->blockNum);
-    
+  unsigned char *bufferPtr;
+  int bufferreturn = loadBlockAndGetBufferPtr(&bufferPtr);
+  if (bufferreturn != SUCCESS) {
+    return bufferreturn;
+  }
+  // get the starting address of the buffer containing the block using
+  // loadBlockAndGetBufferPtr(&bufferPtr).
+
+  // if loadBlockAndGetBufferPtr(&bufferPtr) != SUCCESS
+  // return the value returned by the call.
+
+  // cast bufferPtr to type HeadInfo*
+  struct HeadInfo *bufferHeader = (struct HeadInfo *)bufferPtr;
+
+  // copy the fields of the HeadInfo pointed to by head (except reserved) to
+  // the header of the block (pointed to by bufferHeader)
+  //(hint: bufferHeader->numSlots = head->numSlots )
+  bufferHeader->numSlots = head->numSlots;
+  bufferHeader->lblock = head->lblock;
+  bufferHeader->numEntries = head->numEntries;
+  bufferHeader->pblock = head->pblock;
+  bufferHeader->rblock = head->rblock;
+  bufferHeader->blockType = head->blockType;
+  bufferHeader->numAttrs=head->numAttrs;
+  
+
+  // update dirty bit by calling StaticBuffer::setDirtyBit()
+  // if setDirtyBit() failed, return the error code
+  int setDirty = StaticBuffer::setDirtyBit(this->blockNum);
+  return setDirty;
+
+  // return SUCCESS;
 }
 
 int BlockBuffer::setBlockType(int blockType){
