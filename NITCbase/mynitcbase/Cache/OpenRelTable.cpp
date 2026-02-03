@@ -171,7 +171,7 @@ OpenRelTable::~OpenRelTable()
 	// free all the memory that you allocated in the constructor
 
 	//? close all open relations (from rel-id = 2 onwards. Why?)
-	for (int i = 2; i < MAX_OPEN; ++i)
+	for (int i = 3; i < MAX_OPEN; ++i)
 		if (!tableMetaInfo[i].free)
 			OpenRelTable::closeRel(i); // we will implement this function later
      RelCacheEntry *attrCatRelEntry =
@@ -394,11 +394,11 @@ int OpenRelTable::getRelId(char relName[ATTR_SIZE])
 int OpenRelTable::closeRel(int relId) {
   	if (relId == RELCAT_RELID || relId == ATTRCAT_RELID) return E_NOTPERMITTED;
 
-  	if (2 > relId || relId >= MAX_OPEN) return E_OUTOFBOUND;
+  	if (2 >= relId || relId >= MAX_OPEN) return E_OUTOFBOUND;
 
   	if (tableMetaInfo[relId].free) return E_RELNOTOPEN;
 
-	if (RelCacheTable::relCache[relId]->dirty == true) {
+	if (RelCacheTable::relCache[relId]&&RelCacheTable::relCache[relId]->dirty == true) {
 		/* Get the Relation Catalog entry from RelCacheTable::relCache
 		Then convert it to a record using RelCacheTable::relCatEntryToRecord(). */
 		Attribute relCatBuffer [RELCAT_NO_ATTRS];
