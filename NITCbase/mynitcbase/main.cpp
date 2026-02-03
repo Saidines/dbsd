@@ -4,14 +4,14 @@
 #include "FrontendInterface/FrontendInterface.h"
 #include "bits/stdc++.h"
 
-int s_o_b(int blockNumber){
+/*int s_o_b(int blockNumber){
 	if(blockNumber>8192) return -1;
 	int mapBlockNumber=blockNumber/2048;
-	blockNumber=blockNumber%20448;
+	blockNumber=blockNumber%2048;
 	unsigned char buffer[BLOCK_SIZE];
 	Disk::readBlock(buffer,mapBlockNumber);
 	return buffer[blockNumber];
-}
+}*/
 
 int main(int argc, char *argv[]) {
   Disk disk_run;
