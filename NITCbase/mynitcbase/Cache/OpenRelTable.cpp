@@ -394,7 +394,7 @@ int OpenRelTable::getRelId(char relName[ATTR_SIZE])
 int OpenRelTable::closeRel(int relId) {
   	if (relId == RELCAT_RELID || relId == ATTRCAT_RELID) return E_NOTPERMITTED;
 
-  	if (2 >= relId || relId >= MAX_OPEN) return E_OUTOFBOUND;
+  	if (2 > relId || relId >= MAX_OPEN) return E_OUTOFBOUND;
 
   	if (tableMetaInfo[relId].free) return E_RELNOTOPEN;
 
