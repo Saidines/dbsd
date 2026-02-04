@@ -44,6 +44,7 @@ int BlockBuffer::getHeader(struct HeadInfo *head) {
     
 
     // populate the numEntries, numAttrs and numSlots fields in *head
+     memcpy(&head->blockType, bufferPtr , 4);
     memcpy(&head->pblock, bufferPtr + 4, 4);
     memcpy(&head->lblock, bufferPtr + 8, 4);
     memcpy(&head->rblock, bufferPtr + 12, 4);
