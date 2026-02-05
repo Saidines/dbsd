@@ -170,6 +170,7 @@ OpenRelTable::~OpenRelTable() {
 
 	for(int i=0;i<MAX_OPEN;i++){
 		if(RelCacheTable::relCache[i]!=NULL){
+      closeRel(i);
 		free(RelCacheTable::relCache[i]);
 		RelCacheTable::relCache[i]=NULL;
 		}
