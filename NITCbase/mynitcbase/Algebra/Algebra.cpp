@@ -234,7 +234,7 @@ int Algebra::select(char srcRel[ATTR_SIZE], char targetRel[ATTR_SIZE], char attr
 
     int src_nAttrs = relCatEntry.numAttrs;  
     int attr_types[src_nAttrs]; 
-    int attr_names[src_nAttrs][ATTR_SIZE];  
+    char attr_names[src_nAttrs][ATTR_SIZE];  
     /************************
      The following code prints the contents of a relation directly to the output
     console. Direct console output is not permitted by the actual the NITCbase
@@ -253,7 +253,7 @@ int Algebra::select(char srcRel[ATTR_SIZE], char targetRel[ATTR_SIZE], char attr
        attr_types[i] = attrCatEntry.attrType;   
     }
 
-    Schema::createRel(targetRel,src_nAttrs, attr_types, attr_names,attr_types);
+    Schema::createRel(targetRel,src_nAttrs, attr_names,attr_types);
     
 
     while (true) {
@@ -308,7 +308,7 @@ int Algebra::project(char srcRel[ATTR_SIZE], char targetRel[ATTR_SIZE]) {
 
     int src_nAttrs = relCatEntry.numAttrs;  
     int attr_types[src_nAttrs]; 
-    int attr_names[src_nAttrs][ATTR_SIZE];  
+    char attr_names[src_nAttrs][ATTR_SIZE];  
 
     /*iterate through every attribute of the source relation :
         - get the AttributeCat entry of the attribute with offset.
@@ -328,7 +328,7 @@ int Algebra::project(char srcRel[ATTR_SIZE], char targetRel[ATTR_SIZE]) {
    int ret= Schema::createRel(targetRel,src_nAttrs, attr_names,attr_types);
 
    if(ret!=SUCCESS) return ret;
-   int ret  = OpenRelTable::openRel(targetRel);
+    OpenRelTable::openRel(targetRel);
    int targetRelId=OpenRelTable::getRelId(targetRel);  
    if(ret==E_RELNOTOPEN){
     Schema::deleteRel(targetRel);
@@ -355,7 +355,7 @@ int Algebra::project(char srcRel[ATTR_SIZE], char targetRel[ATTR_SIZE]) {
     // Take care to reset the searchIndex before calling the project function
     // using RelCacheTable::resetSearchIndex()
 
-    Attribute record[numAttrs];
+    union Attribute record[relCatEntry.numAttrs];
 
 
     while (BlockAccess::project(srcRelId, record)/* BlockAccess::project(srcRelId, record) returns SUCCESS */)
@@ -406,7 +406,9 @@ int attr_types[tar_nAttrs];
 int counter=0;  
 while(counter<tar_nAttrs){ 
     RelCacheTable::resetSearchIndex(srcRelId);
-    RecId searchRes = BlockAccess::linearSearch(srcRelId, ATTRCAT_RELNAME, (char*)srcRel, EQ);
+    union Attribute srcrel;
+    strcpy(srcrel.sVal, srcRel); 
+    RecId searchRes = BlockAccess::linearSearch(srcRelId, ATTRCAT_RELNAME, srcrel, EQ);
     if (searchRes.block != -1 && searchRes.slot != -1) {
         // get the record at searchRes using BlockBuffer.getRecord
         RecBuffer recBuffer(searchRes.block);
@@ -415,13 +417,13 @@ while(counter<tar_nAttrs){
         // print the attribute values in the same format as above
         Attribute record[blockHeader.numAttrs];
         recBuffer.getRecord(record, searchRes.slot);
-struct AttrCatEntry *head;
-struct AttrCatEntry *temp;  
-head=AttrCacheTable::getAttrCatEntry(srcRelId, 0);
+struct AttrCatEntry head;
+struct AttrCatEntry temp;  
+AttrCacheTable::getAttrCatEntry(srcRelId, 0 , &head);
 temp=head;     
         for(int i=0;i<src_nAttrs;i++){  
       
-            if( strcmp(temp->attrName , tar_Attrs[counter] )==0){
+            if( strcmp(temp.attrName , tar_Attrs[counter] )==0){
                 attr_offset[counter]=i;
                 AttrCatEntry attrCatEntry;
                 AttrCacheTable::getAttrCatEntry(srcRelId, i, &attrCatEntry);
@@ -432,13 +434,13 @@ temp=head;
             }
             else continue;
         
-    } else {
+    }} else {
         //all records over
        return E_ATTRNOTEXIST;
     }      
 
 
- }
+ 
 
 
     // let attr_types[tar_nAttrs] be an array of type int.
@@ -496,7 +498,8 @@ proj_record[i]=record[attr_offset[i]];
         // ret = BlockAccess::insert(targetRelId, proj_record);
 ret=BlockAccess::insert(targetRelId, proj_record);  
         if (ret!=SUCCESS) {
-            openRelTable::closeRel(targetRel);
+           
+            OpenRelTable::closeRel(targetRelId);
             Schema::deleteRel(targetRel);    
             return ret; 
             // close the targetrel by calling Schema::closeRel()
@@ -509,8 +512,9 @@ ret=BlockAccess::insert(targetRelId, proj_record);
 
     // return SUCCESS.
 }
+int targetRelId=OpenRelTable::getRelId(targetRel);  
 
-closeRelTable::closeRel(targetRelId);
+OpenRelTable::closeRel(targetRelId);
 
 return SUCCESS;
 }   
