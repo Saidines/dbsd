@@ -423,8 +423,10 @@ int OpenRelTable::closeRel(int relId) {
   	//* stages when it becomes needed)
 
 	AttrCacheEntry *head = AttrCacheTable::attrCache[relId];
-	AttrCacheEntry *next = head->next;
-
+	AttrCacheEntry *next= nullptr;
+  if(head!=nullptr) {
+    next = head->next;
+  }
 	while (next) {
 		free (head);
 		head = next;
