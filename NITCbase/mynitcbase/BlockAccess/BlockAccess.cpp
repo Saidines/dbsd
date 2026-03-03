@@ -665,6 +665,7 @@ int BlockAccess::deleteRelation(char relName[ATTR_SIZE]) {
 				RelCacheTable::getRelCatEntry(ATTRCAT_RELID, &relCatEntryBuffer);
 
 				relCatEntryBuffer.lastBlk = attrCatHeader.lblock;
+                RelCacheTable::setRelCatEntry(ATTRCAT_RELID, &relCatEntryBuffer);
             }
 
             // (Since the attribute catalog will never be empty(why?), we do not
