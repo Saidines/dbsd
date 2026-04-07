@@ -10,12 +10,12 @@ RecId BPlusTree::bPlusSearch(int relId, char attrName[ATTR_SIZE], Attribute attr
 
     /* get the search index corresponding to attribute with name attrName
        using AttrCacheTable::getSearchIndex(). */
-    AttrCacheTable::getSearchIndex(relId, attrName, &searchIndex);
+    int ret = AttrCacheTable::getSearchIndex(relId, attrName, &searchIndex);
 
     AttrCatEntry attrCatEntry;
     /* load the attribute cache entry into attrCatEntry using
      AttrCacheTable::getAttrCatEntry(). */
-    AttrCacheTable::getAttrCatEntry(relId, attrName, &attrCatEntry);
+    ret = AttrCacheTable::getAttrCatEntry(relId, attrName, &attrCatEntry);
     int type = attrCatEntry.attrType; // Point 1
 
     // declare variables block and index which will be used during search
@@ -239,6 +239,14 @@ RecId BPlusTree::bPlusSearch(int relId, char attrName[ATTR_SIZE], Attribute attr
     // no entry satisying the op was found; return the recId {-1,-1}
     return RecId{-1, -1};
 }
+
+
+
+
+
+
+
+
 
 int BPlusTree::bPlusCreate(int relId, char attrName[ATTR_SIZE])
 {

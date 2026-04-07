@@ -194,6 +194,9 @@ int Algebra::insert(char relName[ATTR_SIZE], int nAttrs, char record[][ATTR_SIZE
 
 int Algebra::select(char srcRel[ATTR_SIZE], char targetRel[ATTR_SIZE], char attr[ATTR_SIZE], int op, char strVal[ATTR_SIZE]) {
     int srcRelId = OpenRelTable::getRelId(srcRel);      // we'll implement this later
+    StaticBuffer::count=0;
+     RecId recId;
+    StaticBuffer::count=0;  
     if (srcRelId == E_RELNOTOPEN) {
         return E_RELNOTOPEN;
     }
@@ -226,7 +229,7 @@ int Algebra::select(char srcRel[ATTR_SIZE], char targetRel[ATTR_SIZE], char attr
     // Before calling the search function, reset the search to start from the first hit
     // using RelCacheTable::resetSearchIndex()
     RelCacheTable::resetSearchIndex(srcRelId);
-
+    AttrCacheTable::resetSearchIndex(srcRelId, attr);   
     RelCatEntry srcRelCatEntry;
     // get srcRelCatEntry using RelCacheTable::getRelCatEntry()
     RelCacheTable::getRelCatEntry(srcRelId, &srcRelCatEntry);
@@ -277,7 +280,7 @@ int Algebra::select(char srcRel[ATTR_SIZE], char targetRel[ATTR_SIZE], char attr
                     break;
                 }
             }
-            
+                 std::cout<<"Count: "<<StaticBuffer::count<<std::endl; 
             return SUCCESS;
         }
     else {
@@ -342,6 +345,7 @@ int Algebra::select(char srcRel[ATTR_SIZE], char targetRel[ATTR_SIZE], char attr
             first record.
         */
         RelCacheTable::resetSearchIndex(srcRelId);
+        AttrCacheTable::resetSearchIndex(srcRelId, attr);   
         // AttrCacheTable::resetSearchIndex(srcRelId, attr);
 
         // read every record that satisfies the condition by repeatedly calling
@@ -368,6 +372,7 @@ int Algebra::select(char srcRel[ATTR_SIZE], char targetRel[ATTR_SIZE], char attr
         Schema::closeRel(targetRel);
 
         // return SUCCESS.
+        std::cout<<"Count: "<<StaticBuffer::count<<std::endl; 
         return SUCCESS;
     }
 }
